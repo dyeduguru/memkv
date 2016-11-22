@@ -7,12 +7,14 @@ import (
 	"io"
 	"github.com/palantir/stacktrace"
 	"encoding/json"
+	"sync"
 )
 
 const maxRequestSize = 1024*1024 // 1MB
 
 type Store struct {
 	MemStore map[string]string
+	Mutex *sync.Mutex
 }
 
 type KeyValue struct {
@@ -23,6 +25,7 @@ type KeyValue struct {
 func NewStore() *Store {
 	return &Store{
 		MemStore: map[string]string{},
+		Mutex: &sync.Mutex{},
 	}
 }
 
@@ -38,7 +41,9 @@ func (st *Store) AddKey(w http.ResponseWriter, r *http.Request) {
 		WriteJSON(w, err, http.StatusBadRequest)
 		return
 	}
+	st.Mutex.Lock()
 	st.MemStore[kv.Key] = kv.Value
+	st.Mutex.Unlock()
 	w.WriteHeader(http.StatusOK)
 }
 

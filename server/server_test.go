@@ -2,7 +2,7 @@ package server_test
 
 import (
 	"testing"
-	"github.com/memkv/server"
+	"github.com/dyeduguru/memkv/server"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"net/http"
@@ -40,6 +40,6 @@ func TestServer(t *testing.T) {
 func TestMain(m *testing.M) {
 	server := server.Server(cfg)
 	go server.ListenAndServe()
-	time.Sleep(time.Minute)
+	time.Sleep(10*time.Second)
 	os.Exit(m.Run())
 }
