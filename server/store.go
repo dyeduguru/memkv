@@ -1,31 +1,31 @@
 package server
 
 import (
-	"errors"
-	"net/http"
-	"io/ioutil"
-	"io"
-	"github.com/palantir/stacktrace"
 	"encoding/json"
+	"errors"
+	"github.com/palantir/stacktrace"
+	"io"
+	"io/ioutil"
+	"net/http"
 	"sync"
 )
 
-const maxRequestSize = 1024*1024 // 1MB
+const maxRequestSize = 1024 * 1024 // 1MB
 
 type Store struct {
 	MemStore map[string]string
-	Mutex *sync.Mutex
+	Mutex    *sync.Mutex
 }
 
 type KeyValue struct {
-	Key string `json:"key"`
+	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
 func NewStore() *Store {
 	return &Store{
 		MemStore: map[string]string{},
-		Mutex: &sync.Mutex{},
+		Mutex:    &sync.Mutex{},
 	}
 }
 
@@ -37,7 +37,7 @@ func (st *Store) AddKey(w http.ResponseWriter, r *http.Request) {
 	}
 	var kv KeyValue
 	err = json.Unmarshal(body, &kv)
-	if err != nil{
+	if err != nil {
 		WriteJSON(w, err, http.StatusBadRequest)
 		return
 	}
@@ -54,6 +54,9 @@ func (st *Store) GetValue(w http.ResponseWriter, r *http.Request) {
 	}
 	var kv KeyValue
 	err = json.Unmarshal(body, &kv)
+	if err != nil {
+		WriteJSON(w, err, http.StatusInternalServerError)
+	}
 	if v, ok := st.MemStore[kv.Key]; ok {
 		WriteJSON(w, KeyValue{Key: kv.Key, Value: v}, http.StatusOK)
 	} else {
@@ -65,7 +68,7 @@ func readBody(r *http.Request) ([]byte, error) {
 	if r == nil || r.Body == nil {
 		return nil, stacktrace.NewError("Request body empty")
 	}
-	data, err := ioutil.ReadAll(io.LimitReader(r.Body,maxRequestSize))
+	data, err := ioutil.ReadAll(io.LimitReader(r.Body, maxRequestSize))
 	if err != nil {
 		return nil, stacktrace.Propagate(err, "cannot read input")
 	}

@@ -1,21 +1,21 @@
 package server_test
 
 import (
-	"testing"
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/dyeduguru/memkv/server"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"net/http"
-	"fmt"
-	"encoding/json"
-	"bytes"
+	"os"
+	"testing"
 	"time"
 )
 
-var(
-	cfg  = &server.ServerConfig{Host: "localhost", Port: 5555}
-	kvExpected = &server.KeyValue{Key: "key1", Value:"value1"}
-	params =  "application/json; charset=utf-8"
+var (
+	cfg        = &server.ServerConfig{Host: "localhost", Port: 5555}
+	kvExpected = &server.KeyValue{Key: "key1", Value: "value1"}
+	params     = "application/json; charset=utf-8"
 )
 
 func TestServer(t *testing.T) {
@@ -24,22 +24,21 @@ func TestServer(t *testing.T) {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(kvExpected)
 	resp, err := http.Post(addEndpoint, params, b)
-	assert.NoError(t, err," Error while posting keyvalue")
+	assert.NoError(t, err, " Error while posting keyvalue")
 	b = new(bytes.Buffer)
 	json.NewEncoder(b).Encode(&server.KeyValue{Key: kvExpected.Key})
 	resp, err = http.Post(getEndpoint, params, b)
-	assert.NoError(t, err," Error while getting keyvalue")
+	assert.NoError(t, err, " Error while getting keyvalue")
 	var kvActual server.KeyValue
 	json.NewDecoder(resp.Body).Decode(&kvActual)
-	assert.NoError(t, err," Error while unmarshalling keyvalue")
+	assert.NoError(t, err, " Error while unmarshalling keyvalue")
 	assert.True(t, kvActual.Value == kvExpected.Value, "Unexpected value. Actual:%v, Expected:%v",
 		kvActual, kvExpected)
 }
 
-
 func TestMain(m *testing.M) {
 	server := server.Server(cfg)
 	go server.ListenAndServe()
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 	os.Exit(m.Run())
 }

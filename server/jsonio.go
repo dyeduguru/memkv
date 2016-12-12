@@ -1,9 +1,9 @@
 package server
 
 import (
-	"net/http"
 	"encoding/json"
 	"log"
+	"net/http"
 )
 
 func WriteJSON(w http.ResponseWriter, obj interface{}, status int) {
@@ -12,7 +12,7 @@ func WriteJSON(w http.ResponseWriter, obj interface{}, status int) {
 	}
 	data, err := json.Marshal(obj)
 	if err != nil {
-		http.Error(w,err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

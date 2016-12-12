@@ -1,8 +1,8 @@
 package server
 
 import (
-	"net/http"
 	"fmt"
+	"net/http"
 )
 
 type ServerConfig struct {
@@ -18,6 +18,6 @@ func Server(cfg *ServerConfig) *http.Server {
 
 	addr := fmt.Sprintf("%v:%d", cfg.Host, cfg.Port)
 	return &http.Server{
-		Addr:addr,
+		Addr: addr,
 	}
 }
